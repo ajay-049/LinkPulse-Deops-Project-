@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>LinkPulse Arcade — K8s Snake</title>
+  <style>
+    body { background: #0f172a; color: #f8fafc; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+    h1 { margin-bottom: 5px; color: #38bdf8; }
+    p { margin-top: 0; color: #94a3b8; }
+    canvas { background: #1e293b; border: 2px solid #38bdf8; border-radius: 8px; }
+    #score { font-size: 1.2rem; margin: 10px 0; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1>Anjali the Nagin Snake</h1>
+  <p>Use Arrow Keys to play • Running on Kubernetes</p>
+  <div id="score">Score: 0</div>
+  <canvas id="game" width="400" height="400"></canvas>
+
+  <script>
+    const canvas = document.getElementById("game");
+    const ctx = canvas.getContext("2d");
+    const box = 20;
+    let snake = [{ x: 200, y: 200 }];
+    let food = spawnFood();
+    let dir = "RIGHT";
+    let score = 0;
+
+    document.addEventListener("keydown", e => {
+      if (e.key === "ArrowUp" && dir !== "DOWN") dir = "UP";
+      if (e.key === "ArrowDown" && dir !== "UP") dir = "DOWN";
+      if (e.key === "ArrowLeft" && dir !== "RIGHT") dir = "LEFT";
+      if (e.key === "ArrowRight" && dir !== "LEFT") dir = "RIGHT";
+    });
+
+    function spawnFood() {
+      return {
+        x: Math.floor(Math.random() * (canvas.width / box)) * box,
+        y: Math.floor(Math.random() * (canvas.height / box)) * box
+      };
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Draw food
+      ctx.fillStyle = "#f43f5e";
+      ctx.fillRect(food.x, food.y, box, box);
+
+      // Draw snake
+      snake.forEach((part, i) => {
+        ctx.fillStyle = i === 0 ? "#38bdf8" : "#0284c7";
+        ctx.fillRect(part.x, part.y, box - 1, box - 1);
+      });
+
+      let head = { ...snake[0] };
+      if (dir === "UP") head.y -= box;
+      if (dir === "DOWN") head.y += box;
+      if (dir === "LEFT") head.x -= box;
+      if (dir === "RIGHT") head.x += box;
+
+      // Wall or self collision -> reset
+      if (head.x < 0 || head.y < 0 || head.x >= canvas.width || head.y >= canvas.height ||
+          snake.some(p => p.x === head.x && p.y === head.y)) {
+        snake = [{ x: 200, y: 200 }];
+        dir = "RIGHT";
+        score = 0;
+        document.getElementById("score").innerText = "Score: 0";
+        return;
+      }
+
+      snake.unshift(head);
+      if (head.x === food.x && head.y === food.y) {
+        score++;
+        document.getElementById("score").innerText = "Score: " + score;
+        food = spawnFood();
+      } else {
+        snake.pop();
+      }
+    }
+
+    setInterval(draw, 120);
+  </script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: linkpulse-game
+  namespace: linkpulse
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: linkpulse-game
+  template:
+    metadata:
+      labels:
+        app: linkpulse-game
+    spec:
+      containers:
+        - name: game
+          image: linkpulse-game:v1
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 80
