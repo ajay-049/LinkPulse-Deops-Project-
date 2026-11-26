@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: linkpulse-api
+  namespace: linkpulse
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: linkpulse-api
+  template:
+    metadata:
+      labels:
+        app: linkpulse-api
+    spec:
+      containers:
+        - name: api
+          image: linkpulse-api:v1
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8000
